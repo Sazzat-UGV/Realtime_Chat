@@ -49,7 +49,7 @@ class RoleSeeder extends Seeder
             'slug' => Str::slug('User'),
             'note' => "User does't have any permission",
             'is_deletable' => true,
-            'status' => false,
+            'status' => true,
         ]);
 
     }
