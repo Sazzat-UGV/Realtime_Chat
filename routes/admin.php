@@ -4,6 +4,7 @@ use App\Http\Controllers\Backend\Auth\LoginController;
 use App\Http\Controllers\Backend\Auth\ProfileController;
 use App\Http\Controllers\Backend\BackupController;
 use App\Http\Controllers\Backend\CategoryController;
+use App\Http\Controllers\Backend\ChatController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\Export\UserExportController;
 use App\Http\Controllers\Backend\ModuleController;
@@ -59,5 +60,8 @@ Route::prefix('/admin')->as('admin.')->group(function () {
         // email configuration setting route
         Route::get('email-configuration', [EmailConfigurationController::class, 'index'])->name('email_configuration_page');
         Route::post('email-configuration', [EmailConfigurationController::class, 'setting_submit'])->name('email_configuration_submit');
+
+        //chatting route
+        Route::get('chat', [ChatController::class, 'index'])->name('chat');
     });
 });

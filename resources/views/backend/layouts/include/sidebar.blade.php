@@ -10,6 +10,14 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{ route('admin.chat') }}"
+                        class="waves-effect @if (Route::is('admin.chat')) active @endif">
+                        <i class="bx bx-chat"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+
                 @can('browse-category')
                     <li>
                         <a href="{{ route('admin.category.index') }}"
