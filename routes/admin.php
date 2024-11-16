@@ -1,19 +1,20 @@
 <?php
 
-use App\Http\Controllers\Backend\Auth\LoginController;
-use App\Http\Controllers\Backend\Auth\ProfileController;
-use App\Http\Controllers\Backend\BackupController;
-use App\Http\Controllers\Backend\CategoryController;
-use App\Http\Controllers\Backend\ChatController;
-use App\Http\Controllers\Backend\DashboardController;
-use App\Http\Controllers\Backend\Export\UserExportController;
-use App\Http\Controllers\Backend\ModuleController;
-use App\Http\Controllers\backend\PermissionController;
-use App\Http\Controllers\backend\RoleController;
-use App\Http\Controllers\Backend\Setting\EmailConfigurationController;
-use App\Http\Controllers\Backend\Setting\GeneralSettingController;
-use App\Http\Controllers\Backend\UserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Backend\ChatController;
+use App\Http\Controllers\backend\RoleController;
+use App\Http\Controllers\Backend\UserController;
+use App\Http\Controllers\Backend\BackupController;
+use App\Http\Controllers\Backend\ModuleController;
+use App\Http\Controllers\Backend\CategoryController;
+use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\Auth\LoginController;
+use App\Http\Controllers\backend\PermissionController;
+use App\Http\Controllers\Backend\Auth\ProfileController;
+use App\Http\Controllers\Backend\Export\UserExportController;
+use App\Http\Controllers\Backend\Setting\GeneralSettingController;
+use App\Http\Controllers\Backend\Setting\EmailConfigurationController;
 
 Route::redirect('/admin', '/admin/login');
 Route::prefix('/admin')->as('admin.')->group(function () {
@@ -64,6 +65,10 @@ Route::prefix('/admin')->as('admin.')->group(function () {
         //chatting route
         Route::post('chat/update_socket', [ChatController::class, 'updateUserSocketId'])->name('update_socketId');
         Route::post('chat/delete_socket', [ChatController::class, 'deleteUserSocketId'])->name('delete_socketId');
+        Route::get('/chat/messages/{receiverId}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
+
+
+
     /////////////////////////////////////////////////////////////////////////
         Route::get('chat', [ChatController::class, 'index'])->name('chat');
         Route::post('chat', [ChatController::class, 'saveMessage'])->name('chat_submit');

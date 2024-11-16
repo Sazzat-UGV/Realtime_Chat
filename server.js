@@ -24,29 +24,35 @@ io.on("connection", (socket) => {
     console.log("New User Connected: ", socket.id);
 
     socket.on("user_connected", async (userId) => {
-        console.log(`User ID: ${userId}, Socket ID: ${socket.id}`);
-
         try {
-            // Save the connected user to the database
-            // const response = await axios.post(`${API_BASE_URL}/connected-users`, {
-            //     user_id: userId,
-            //     socket_id: socket.id,
-            // });
-
             // Add the user to the connectedUsers list
             connectedUsers = connectedUsers.filter(
                 (user) => user.userId !== userId
-            ); // Remove previous connection if exists
+            );
             connectedUsers.push({ userId, socketId: socket.id });
 
             // Emit the updated user list to all clients
-            io.emit("update users", connectedUsers);
-
-            console.log("User saved to the database:", response.data);
+            io.emit("active_user", connectedUsers);
         } catch (error) {
             console.error("Error saving user:", error);
         }
-        console.log("user: ", connectedUsers);
+        console.log("connectedUsers: ", connectedUsers);
+    });
+
+    socket.on("message", (data) => {
+        const { receiverId, message, senderId } = data;
+        const receiverSocketId = connectedUsers[receiverId];
+
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("msg", {
+                senderId: senderId,
+                message: message,
+                senderName: "Sender Name", // You can replace this with real user data
+                createdAt: new Date().toLocaleTimeString(),
+            });
+        } else {
+            console.log(`User ${receiverId} is not connected`);
+        }
     });
 
     // Listen for disconnect event

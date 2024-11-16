@@ -32,9 +32,17 @@ class ChatController extends Controller
         return response()->json(['message' => 'User socket ID deleted successfully.'], 200);
     }
 
+    public function getMessages($receiverId)
+    {
+        $userId = Auth::id();
+        $messages = Message::where(function ($query) use ($userId, $receiverId) {
+            $query->where('sender_id', $userId)->where('receiver_id', $receiverId);
+        })->orWhere(function ($query) use ($userId, $receiverId) {
+            $query->where('sender_id', $receiverId)->where('receiver_id', $userId);
+        })->orderBy('created_at', 'asc')->get();
 
-
-
+        return response()->json(['messages' => $messages]);
+    }
 
     public function index()
     {
@@ -49,13 +57,14 @@ class ChatController extends Controller
     public function saveMessage(Request $request)
     {
         $request->validate([
+            'receiver_id' => 'required',
             'message' => 'required|string',
         ]);
         Message::create([
-            'sender_id' => $request->sender_id ?? 3,
-            'receiver_id' => $request->receiver_id ?? 4,
+            'sender_id' => $request->sender_id,
+            'receiver_id' => $request->receiver_id,
             'message' => $request->message,
         ]);
-        return back();
+        return response()->json($request->all());
     }
 }
