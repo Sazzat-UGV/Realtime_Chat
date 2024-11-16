@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('postal_code')->nullable();
             $table->string('country')->nullable();
             $table->string('city')->nullable();
+            $table->string('socket_id')->nullable();
             $table->boolean('status')->default(true);
             $table->rememberToken();
             $table->timestamps();

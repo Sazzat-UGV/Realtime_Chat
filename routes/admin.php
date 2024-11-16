@@ -62,6 +62,10 @@ Route::prefix('/admin')->as('admin.')->group(function () {
         Route::post('email-configuration', [EmailConfigurationController::class, 'setting_submit'])->name('email_configuration_submit');
 
         //chatting route
+        Route::post('chat/update_socket', [ChatController::class, 'updateUserSocketId'])->name('update_socketId');
+        Route::post('chat/delete_socket', [ChatController::class, 'deleteUserSocketId'])->name('delete_socketId');
+    /////////////////////////////////////////////////////////////////////////
         Route::get('chat', [ChatController::class, 'index'])->name('chat');
+        Route::post('chat', [ChatController::class, 'saveMessage'])->name('chat_submit');
     });
 });
