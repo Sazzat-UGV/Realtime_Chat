@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
 
 // Socket.io connection event
 io.on("connection", (socket) => {
-    console.log("New User Connected: ", socket.id);
+    console.log("New User Connected:", socket.id);
 
     socket.on("user_connected", async (userId) => {
         try {
@@ -30,29 +30,33 @@ io.on("connection", (socket) => {
                 (user) => user.userId !== userId
             );
             connectedUsers.push({ userId, socketId: socket.id });
-
             // Emit the updated user list to all clients
             io.emit("active_user", connectedUsers);
         } catch (error) {
             console.error("Error saving user:", error);
         }
-        console.log("connectedUsers: ", connectedUsers);
+        console.log("Active Users: ", connectedUsers);
     });
 
-    socket.on("message", (data) => {
-        const { receiverId, message, senderId } = data;
-        const receiverSocketId = connectedUsers[receiverId];
-
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit("msg", {
-                senderId: senderId,
-                message: message,
-                senderName: "Sender Name", // You can replace this with real user data
-                createdAt: new Date().toLocaleTimeString(),
+    socket.on("private_message", (data) => {
+        const { message, receiver_id } = data;
+        // Find the receiver's socket ID
+        const receiver = connectedUsers.find(
+            (user) => user.userId == data?.receiver_id
+        );
+        if (receiver?.socketId) {
+            // Send the message to the receiver
+            io.to(receiver.socketId).emit("chat message", {
+                senderId: data.sender_id,
+                message,
             });
-        } else {
-            console.log(`User ${receiverId} is not connected`);
         }
+        // Send the message back to the sender's chatbox
+        socket.emit("chat message", {
+            senderName: "You",
+            message,
+            createdAt: new Date().toLocaleTimeString(),
+        });
     });
 
     // Listen for disconnect event
@@ -61,7 +65,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// Run the server
+// Run socket server
 server.listen(3000, "127.0.0.1", () => {
     console.log("Server running at http://127.0.0.1:3000");
 });

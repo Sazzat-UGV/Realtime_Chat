@@ -2,6 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "start": "nodemon server.js",
         "dev": "vite",
         "build": "vite build"
     },
@@ -17,6 +18,7 @@
     },
     "dependencies": {
         "express": "^4.21.1",
+        "nodemon": "^3.1.7",
         "socket.io": "^4.8.1"
     }
 }

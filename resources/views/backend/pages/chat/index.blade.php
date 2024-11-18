@@ -3,6 +3,57 @@
     Chat
 @endsection
 @push('style')
+    <style>
+        /* Style for the chat messages container */
+        #chat-messages {
+            max-height: 486px;
+            /* Adjust the height as needed */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+            scroll-behavior: smooth;
+            /* Smooth scrolling for the chat */
+        }
+
+        /* Custom scrollbar styles for Webkit browsers (Chrome, Safari, Edge) */
+        #chat-messages::-webkit-scrollbar {
+            width: 1px;
+            /* Increase the width to make the scrollbar taller (this controls the height of the scrollbar) */
+        }
+
+        /* Track (background of the scrollbar) */
+        #chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            /* Light background */
+            border-radius: 10px;
+        }
+
+        /* Handle (the draggable part of the scrollbar) */
+        #chat-messages::-webkit-scrollbar-thumb {
+            background: #888;
+            /* Darker background for the thumb */
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        /* Handle hover effect */
+        #chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #555;
+            /* Darker on hover */
+        }
+
+        /* Scrollbar corner (when both vertical and horizontal scrollbars are present) */
+        #chat-messages::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* For Firefox */
+        #chat-messages {
+            scrollbar-width: thin;
+            /* Makes the scrollbar thinner */
+            scrollbar-color: #888 #f1f1f1;
+            /* thumb and track colors */
+        }
+    </style>
 @endpush
 @section('content')
     @include('backend.layouts.include.breadcrumb', [
@@ -213,7 +264,8 @@
             $(this).addClass('active');
 
             $.ajax({
-                url: "{{ route('admin.chat.getMessages', ['receiverId' => '__receiverId__']) }}".replace('__receiverId__', receiverId),
+                url: "{{ route('admin.chat.getMessages', ['receiverId' => '__receiverId__']) }}".replace(
+                    '__receiverId__', receiverId),
                 type: 'GET',
                 success: function(response) {
                     let messages = response.messages;
@@ -225,12 +277,7 @@
                                 <li class="right">
                                     <div class="conversation-list">
                                         <div class="ctext-wrap">
-                                            <div class="conversation-name">You</div>
                                             <p>${message.message}</p>
-                                            <p class="chat-time mb-0">
-                                                <i class="bx bx-time-five align-middle me-1"></i>
-                                                ${new Date(message.created_at).toLocaleTimeString()}
-                                            </p>
                                         </div>
                                     </div>
                                 </li>`;
@@ -239,12 +286,7 @@
                                 <li class="left">
                                     <div class="conversation-list">
                                         <div class="ctext-wrap">
-                                            <div class="conversation-name">${message.sender_name}</div>
                                             <p>${message.message}</p>
-                                            <p class="chat-time mb-0">
-                                                <i class="bx bx-time-five align-middle me-1"></i>
-                                                ${new Date(message.created_at).toLocaleTimeString()}
-                                            </p>
                                         </div>
                                     </div>
                                 </li>`;
@@ -279,47 +321,32 @@
                     _token: "{{ csrf_token() }}"
                 },
                 success: function(response) {
-                    socket.emit('message', {
-                        receiverId: receiverId,
-                        message: message,
-                        senderId: senderId
+                    socket.emit("private_message", {
+                        message,
+                        receiver_id: receiverId,
+                        sender_id: senderId,
                     });
 
                     $('#send_message').val('');
-                    $('#chat-messages').append(`
-                        <li class="right">
-                            <div class="conversation-list">
-                                <div class="ctext-wrap">
-                                    <div class="conversation-name">You</div>
-                                    <p>${message}</p>
-                                    <p class="chat-time mb-0">
-                                        <i class="bx bx-time-five align-middle me-1"></i>
-                                        ${new Date().toLocaleTimeString()}
-                                    </p>
-                                </div>
-                            </div>
-                        </li>
-                    `);
                 }
             });
         });
 
-        socket.on('msg', function(msg) {
+        socket.on('chat message', function(msg) {
             const newMessageHtml = `
-                <li class="left">
-                    <div class="conversation-list">
-                        <div class="ctext-wrap">
-                            <div class="conversation-name">${msg.senderName}</div>
-                            <p>${msg.message}</p>
-                            <p class="chat-time mb-0">
-                                <i class="bx bx-time-five align-middle me-1"></i>
-                                ${msg.createdAt}
-                            </p>
-                        </div>
-                    </div>
-                </li>
-            `;
+        <li class="${msg.senderName === "You" ? "right" : "left"}">
+            <div class="conversation-list">
+                <div class="ctext-wrap">
+                    <p>${msg.message}</p>
+                </div>
+            </div>
+        </li>
+    `;
             $('#chat-messages').append(newMessageHtml);
+
+            // Scroll to the bottom of the chat messages container
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         });
     </script>
 @endpush
